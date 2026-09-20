@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>乃木坂46メンバー思い出した順当てゲーム</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 20px 16px;
+      background-color: #f4f0f7;
+      color: #333;
+      text-align: center;
+    }
+    .card {
+      background: #ffffff;
+      padding: 28px 20px;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+    h1 {
+      font-size: 20px;
+      color: #7b1fa2; /* 乃木坂パープル */
+      margin-bottom: 12px;
+    }
+    p.desc {
+      font-size: 14px;
+      color: #666;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      box-sizing: border-box;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input[type="text"]:focus {
+      border-color: #7b1fa2;
+    }
+    .btn-submit {
+      width: 100%;
+      padding: 14px;
+      font-size: 16px;
+      font-weight: bold;
+      background-color: #7b1fa2;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .btn-submit:hover {
+      background-color: #4a148c;
+    }
+    .result-box {
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid #eee;
+    }
+    .score-display {
+      font-size: 22px;
+      font-weight: bold;
+      color: #111;
+      margin-bottom: 12px;
+    }
+    .details-list {
+      font-size: 13px;
+      color: #666;
+      text-align: left;
+      background: #f9f9f9;
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+    .btn-share {
+      display: inline-block;
+      width: 100%;
+      padding: 12px;
+      font-size: 15px;
+      font-weight: bold;
+      background-color: #000000; /* X Black */
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      box-sizing: border-box;
+    }
+    .btn-share:hover {
+      opacity: 0.85;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h1>乃木坂46 メンバー当てゲーム</h1>
+    <p class="desc">
+      私が思いついた順に99人並べました！<br>
+      できるだけ後半に思いついたメンバーを3人、<strong>「すべてひらがな」</strong>で入力してください。
+    </p>
+    
+    <div class="input-group">
+      <input type="text" id="answer1" placeholder="1人目（例: なかもとひめか）">
+      <input type="text" id="answer2" placeholder="2人目">
+      <input type="text" id="answer3" placeholder="3人目">
+    </div>
+
+    <button class="btn-submit" onclick="calculateScore()">結果を見る</button>
+
+    <div id="resultContainer" class="result-box" style="display: none;">
+      <div id="scoreDisplay" class="score-display"></div>
+      <div id="detailsList" class="details-list"></div>
+      <a id="shareBtn" class="btn-share" target="_blank" rel="noopener noreferrer">
+        Xで結果をシェアする
+      </a>
+    </div>
+  </div>
+
+  <script>
+    // 99人のメンバーリスト（思いついた順：1番目=1点、99番目=99点）
+    const memberList = [
+      "なかもとひめか", "くぼしおり", "やましたみづき", "よだゆうき", "すずきあやね",
+      "いくたえりか", "いこまりな", "ほしのみなみ", "ふかがわまい", "しらいしまい",
+      "しんうちまい", "はしもとななみ", "にしのななせ", "まつむらさゆり", "えとうみさ",
+      "たかやまかずみ", "あんどうみくも", "かしわゆきな", "さいとうちはる", "わだまあや",
+      "かわむらまひろ", "よしだあやのくりすてぃー", "きたのひなこ", "わたなべみりあ", "えんどうさくら",
+      "いけだてれさ", "のうじょうあみ", "さいとうあすか", "おがわあや", "さいとうゆうり",
+      "つついあやめ", "いわもとれんか", "さかぐちたまみ", "いのうえさゆり", "いとうりりあ",
+      "とみさとなお", "はやしるな", "もりひらうるみ", "あきもとまなつ", "はたなかせいら",
+      "みやざわせいら", "ながしませいら", "よしもとあやか", "やまもとほのか", "ささきことこ",
+      "きたがわゆり", "ほりみおな", "やまざきれな", "うめざわみなみ", "おおぞのももこ",
+      "しばたゆな", "いとうまりか", "いとうねね", "いおきまお", "いのうえなぎ",
+      "かわごひな", "なかむられの", "なかだかな", "かきはるか", "さくらいれいか",
+      "むかいはづき", "さとうかえで", "ひぐちひな", "あたごここね", "ながしまりお",
+      "せいみやれい", "かけはしさやか", "おかもとひな", "わかつきゆみ", "たむらまゆ",
+      "よねとくきょうか", "にしかわななみ", "せとぐちみつき", "さがらいおり", "やだもえか",
+      "やだりさこ", "やくぼみお", "すがわらさつき", "なかにしあるの", "ますだみりね",
+      "かながわさや", "いちのせみく", "てらだらんぜ", "おおこしひなの", "おづれいな",
+      "かわさきさくら", "はやかわせいら", "ゆみきなお", "いとうかりん", "いちきれな",
+      "いとうじゅんな", "いわせゆみこ", "くろみはるか", "おくだいろは", "さとうりか",
+      "かわばたひな", "まつおみゆ", "やまとりな", "まついれな"
+    ];
+
+    function calculateScore() {
+      // 空白の自動除去
+      const getInputValue = id => document.getElementById(id).value.replace(/\s+/g, "");
+
+      const input1 = getInputValue("answer1");
+      const input2 = getInputValue("answer2");
+      const input3 = getInputValue("answer3");
+
+      if (!input1 || !input2 || !input3) {
+        alert("3人全員入力してください！");
+        return;
+      }
+
+      const inputs = [input1, input2, input3];
+
+      // ひらがなチェック
+      const hiraganaRegex = /^[ぁ-んー]+$/;
+      for (let name of inputs) {
+        if (!hiraganaRegex.test(name)) {
+          alert(`「${name}」は、すべて「ひらがな」で入力してください！`);
+          return;
+        }
+      }
+      
+      // 重複チェック
+      const uniqueInputs = new Set(inputs);
+      if (uniqueInputs.size !== 3) {
+        alert("同じメンバーが重複して入力されています！");
+        return;
+      }
+
+      let totalScore = 0;
+      let detailsHTML = "";
+
+      inputs.forEach(name => {
+        const index = memberList.indexOf(name);
+        
+        if (index !== -1) {
+          const score = index + 1; // 1番目=1点、99番目=99点
+          totalScore += score;
+          detailsHTML += `<div>・${name}：<strong>${score}点</strong> (${score}番目)</div>`;
+        } else {
+          detailsHTML += `<div>・${name}：<strong>0点</strong> (リスト外)</div>`;
+        }
+      });
+
+      // スコアと内訳の表示（満点は 99+98+97 = 294点）
+      document.getElementById("scoreDisplay").innerHTML = `あなたの点数：<strong>${totalScore}</strong> 点 / 294点`;
+      document.getElementById("detailsList").innerHTML = detailsHTML;
+      
+      // XシェアボタンのURL生成
+      const siteUrl = window.location.href;
+      const shareText = `乃木坂46メンバー思い出した順当てゲーム！\n私のスコアは【${totalScore}点】でした！\n\n#乃木坂46 #言葉当てゲーム\n`;
+      const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(siteUrl)}`;
+      
+      const shareBtn = document.getElementById("shareBtn");
+      shareBtn.href = shareUrl;
+
+      // 結果エリアの表示
+      document.getElementById("resultContainer").style.display = "block";
+    }
+  </script>
+</body>
+</html>
